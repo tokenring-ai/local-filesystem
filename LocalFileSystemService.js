@@ -480,9 +480,7 @@ export default class LocalFileSystemService extends FileSystemService {
 						});
 					}
 				}
-			} catch (error) {
-				console.error(`Error searching file ${file}: ${error.message}`);
-			}
+			} catch (error) {}
 		}
 
 		return results;
