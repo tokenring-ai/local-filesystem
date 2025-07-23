@@ -45,24 +45,16 @@ export default class LocalFileSystemService extends FileSystemService {
 	 * @returns {string} The absolute path.
 	 */
 	relativeOrAbsolutePathToAbsolutePath(p) {
-		if (!path.isAbsolute(p)) return path.resolve(this.rootDirectory, p);
-
-		// Might not be an absolute path, might be a path in the base directory with a / on the front
-		let resolved = path.resolve(this.rootDirectory, p);
-		if (fs.existsSync(resolved)) return resolved;
-
-		// Might be a new file in the base directory
-		const withoutFile = p.replace(/\/[^\/]+\.[a-zA-Z0-9]+/);
-		resolved = path.resolve(this.rootDirectory, withoutFile);
-		if (fs.existsSync(resolved)) return path.resolve(this.rootDirectory, p);
-
-		// Check if the path is within the root directory
-		const relativePath = path.relative(this.rootDirectory, p);
-		if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-			throw new Error(`Path ${p} is outside the root directory`);
+		if (path.isAbsolute(p)) {
+			// Check if the absolute path is inside the root directory
+			const relativePath = path.relative(this.rootDirectory, p);
+			if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+				throw new Error(`Path ${p} is outside the root directory`);
+			}
+			return p;
+		} else {
+			return path.resolve(this.rootDirectory, p);
 		}
-
-		return path.resolve(this.rootDirectory, p);
 	}
 
 	/**
@@ -336,10 +328,11 @@ export default class LocalFileSystemService extends FileSystemService {
 					file = file.substring(2);
 				}
 
-				/*if (file.startsWith(cwd)) {
-       file = file.substring(cwd.length + 1);
-      }*/
-				return ig(file);
+				try {
+					return ig(file);
+				} catch (error) {
+					return true;
+				}
 			},
 			cwd: cwd,
 			awaitWriteFinish: {
