@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import fs from "fs-extra";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { LocalFileSystemService } from "../index.js";

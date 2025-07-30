@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { FileSystemService } from "@token-ring/filesystem";
 import chokidar from "chokidar";
 import { execa } from "execa";
@@ -172,7 +172,7 @@ export default class LocalFileSystemService extends FileSystemService {
 		try {
 			const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
 			return fs.pathExists(absolutePath);
-		} catch (error) {
+		} catch (_error) {
 			return false;
 		}
 	}
@@ -330,7 +330,7 @@ export default class LocalFileSystemService extends FileSystemService {
 
 				try {
 					return ig(file);
-				} catch (error) {
+				} catch (_error) {
 					return true;
 				}
 			},
@@ -473,7 +473,7 @@ export default class LocalFileSystemService extends FileSystemService {
 						});
 					}
 				}
-			} catch (error) {}
+			} catch (_error) {}
 		}
 
 		return results;
