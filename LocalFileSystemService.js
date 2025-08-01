@@ -114,10 +114,11 @@ export default class LocalFileSystemService extends FileSystemService {
 	/**
 	 * Gets the content of the specified file.
 	 * @param {string} filePath - Path to the file to read.
+	 * @param {string} encoding - Encoding for file
 	 * @returns {Promise<string>} A promise that resolves to the content of the file as a string.
 	 * @throws Will throw an error if the file cannot be read.
 	 */
-	async getFile(filePath) {
+	async readFile(filePath, encoding) {
 		const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
 
 		// Check if the file exists
@@ -132,7 +133,7 @@ export default class LocalFileSystemService extends FileSystemService {
 		}
 
 		// noinspection JSValidateTypes,JSCheckFunctionSignatures
-		return fs.readFile(absolutePath, "utf8");
+		return fs.readFile(absolutePath, encoding);
 	}
 
 	/**
