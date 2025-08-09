@@ -16,7 +16,8 @@
 		"vitest": "^3.2.4"
 	},
 	"exports": {
-		".": "./index.js"
+		".": "./index.ts",
+		"./*": "./*.ts"
 	},
 	"license": "MIT",
 	"scripts": {
