@@ -3,9 +3,10 @@
 	"version": "0.1.0",
 	"dependencies": {
 		"@token-ring/chat": "0.1.0",
-		"@token-ring/eslint-config": "0.0.0",
+
 		"@token-ring/filesystem": "0.1.0",
 		"@token-ring/registry": "0.1.0",
+  "chokidar": "^4.0.3",
 		"execa": "^8.0.1",
 		"fs-extra": "^11.3.0",
 		"glob": "^11.0.3",
@@ -21,9 +22,9 @@
 	},
 	"license": "MIT",
 	"scripts": {
-		"lint": "eslint ",
-		"test": "node_modules/.bin/vitest run",
-		"eslint": "eslint --fix ./"
+
+		"test": "node_modules/.bin/vitest run"
+
 	},
 	"type": "module"
 }

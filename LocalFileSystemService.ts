@@ -3,9 +3,6 @@ import chokidar, { FSWatcher } from "chokidar";
 import { execa } from "execa";
 import fs from "fs-extra";
 import { glob } from "glob";
-// FileSystemService is authored in JS; import the runtime class and rely on structural typing.
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { FileSystemService } from "@token-ring/filesystem";
 
 interface ConstructorOptions {
@@ -51,7 +48,7 @@ export default class LocalFileSystemService extends FileSystemService {
     },
   } as const;
 
-  private rootDirectory!: string;
+  private readonly rootDirectory!: string;
 
   constructor(options: ConstructorOptions) {
     const { rootDirectory } = options;
@@ -116,7 +113,8 @@ export default class LocalFileSystemService extends FileSystemService {
     }
     // fs-extra typings allow encoding string to return string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return fs.readFile(absolutePath, encoding as any);
+    const result = await fs.readFile(absolutePath, encoding as any);
+    return result.toString();
   }
 
   async rename(oldPath: string, newPath: string): Promise<boolean> {

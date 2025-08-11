@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "fs-extra";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { LocalFileSystemService } from "../index.ts";
+import { LocalFileSystemService } from "../index.js";
 
 /**
  * Integration tests for LocalFileSystemService that test the complete flow
