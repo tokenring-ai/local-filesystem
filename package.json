@@ -1,6 +1,7 @@
 {
 	"name": "@token-ring/local-filesystem",
 	"version": "0.1.0",
+ "description": "A local filesystem package for token-ring",
 	"dependencies": {
 		"@token-ring/chat": "0.1.0",
 

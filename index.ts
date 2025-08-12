@@ -1,5 +1,6 @@
-export { default as LocalFileSystemService } from "./LocalFileSystemService.ts";
+import packageJSON from './package.json' with { type: 'json' };
+export const name = packageJSON.name;
+export const version = packageJSON.version;
+export const description = packageJSON.description;
 
-export const name = "@token-ring/local-filesystem";
-export const description = "Service that add file contents or file names to the chat memory.";
-export const version = "0.1.0";
+export { default as LocalFileSystemService } from "./LocalFileSystemService.ts";

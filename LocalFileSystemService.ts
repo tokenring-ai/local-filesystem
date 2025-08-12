@@ -52,9 +52,8 @@ export default class LocalFileSystemService extends FileSystemService {
 
   constructor(options: ConstructorOptions) {
     const { rootDirectory } = options;
-    // Pass through defaultSelectedFiles to base class if present
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    super(options as any);
+
+    super(options);
 
     if (!fs.existsSync(rootDirectory)) {
       throw new Error(`Root directory ${rootDirectory} does not exist`);
@@ -111,9 +110,7 @@ export default class LocalFileSystemService extends FileSystemService {
     if (!stats.isFile()) {
       throw new Error(`Path ${filePath} is not a file`);
     }
-    // fs-extra typings allow encoding string to return string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await fs.readFile(absolutePath, encoding as any);
+    const result = fs.readFileSync(absolutePath, {encoding});
     return result.toString();
   }
 
@@ -402,19 +399,6 @@ export default class LocalFileSystemService extends FileSystemService {
       return true;
     } catch (error: any) {
       throw new Error(`Failed to change permissions for ${filePath}: ${error.message}`);
-    }
-  }
-
-  async chown(filePath: string, uid: number, gid: number): Promise<boolean> {
-    const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
-    if (!(await fs.pathExists(absolutePath))) {
-      throw new Error(`Path ${filePath} does not exist`);
-    }
-    try {
-      await fs.chown(absolutePath, uid, gid);
-      return true;
-    } catch (error: any) {
-      throw new Error(`Failed to change ownership for ${filePath}: ${error.message}`);
     }
   }
 }
