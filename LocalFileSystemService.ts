@@ -1,9 +1,9 @@
 import path from "node:path";
-import chokidar, { FSWatcher } from "chokidar";
-import { execa } from "execa";
+import chokidar, {FSWatcher} from "chokidar";
+import {execa} from "execa";
 import fs from "fs-extra";
-import { glob } from "glob";
-import { FileSystemService } from "@token-ring/filesystem";
+import {glob} from "glob";
+import {FileSystemService} from "@token-ring/filesystem";
 
 interface ConstructorOptions {
   rootDirectory: string;
