@@ -40,6 +40,10 @@ export default class LocalFileSystemService extends FileSystemService {
   name = "LocalFilesystemService";
   description = "Provides access to the local filesystem";
 
+  getBaseDirectory(): string {
+    return this.rootDirectory;
+  }
+
   static constructorProperties = {
     rootDirectory: {
       type: "string",
@@ -97,9 +101,6 @@ export default class LocalFileSystemService extends FileSystemService {
     return true;
   }
 
-  async getFile(filePath: string): Promise<string> {
-    return this.readFile(filePath, "utf8");
-  }
 
   async readFile(filePath: string, encoding: BufferEncoding | undefined): Promise<string> {
     const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
@@ -331,6 +332,7 @@ export default class LocalFileSystemService extends FileSystemService {
     for (const file of filesToSearch) {
       try {
         const content = await this.getFile(path.relative(this.rootDirectory, file));
+        if (!content) continue;
         const lines = content.split("\n");
 
         for (let lineNum = 0; lineNum < lines.length; lineNum++) {
