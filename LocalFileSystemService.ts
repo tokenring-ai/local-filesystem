@@ -1,9 +1,10 @@
-import path from "node:path";
+import {FileSystemService} from "@token-ring/filesystem";
+import {ExecuteCommandOptions, ExecuteCommandResult} from "@token-ring/filesystem/FileSystemService";
 import chokidar, {FSWatcher} from "chokidar";
 import {execa} from "execa";
 import fs from "fs-extra";
 import {glob} from "glob";
-import {FileSystemService} from "@token-ring/filesystem";
+import path from "node:path";
 
 interface ConstructorOptions {
   rootDirectory: string;
@@ -22,28 +23,8 @@ interface StatLike {
   accessed: Date;
 }
 
-interface ExecuteCommandOptions {
-  timeoutSeconds?: number;
-  env?: Record<string, string | undefined>;
-  workingDirectory?: string;
-}
-
-interface ExecuteCommandResult {
-  ok: boolean;
-  stdout: string;
-  stderr: string;
-  exitCode: number;
-  error?: string | null;
-}
 
 export default class LocalFileSystemService extends FileSystemService {
-  name = "LocalFilesystemService";
-  description = "Provides access to the local filesystem";
-
-  getBaseDirectory(): string {
-    return this.rootDirectory;
-  }
-
   static constructorProperties = {
     rootDirectory: {
       type: "string",
@@ -51,11 +32,12 @@ export default class LocalFileSystemService extends FileSystemService {
       description: "Root directory for file operations",
     },
   } as const;
-
+  name = "LocalFilesystemService";
+  description = "Provides access to the local filesystem";
   private readonly rootDirectory!: string;
 
   constructor(options: ConstructorOptions) {
-    const { rootDirectory } = options;
+    const {rootDirectory} = options;
 
     super(options);
 
@@ -63,6 +45,10 @@ export default class LocalFileSystemService extends FileSystemService {
       throw new Error(`Root directory ${rootDirectory} does not exist`);
     }
     this.rootDirectory = rootDirectory;
+  }
+
+  getBaseDirectory(): string {
+    return this.rootDirectory;
   }
 
   relativeOrAbsolutePathToAbsolutePath(p: string): string {
@@ -161,7 +147,7 @@ export default class LocalFileSystemService extends FileSystemService {
 
   async createDirectory(dirPath: string, options: { recursive?: boolean } = {}): Promise<boolean> {
     const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(dirPath);
-    const { recursive = false } = options;
+    const {recursive = false} = options;
 
     if (await fs.pathExists(absolutePath)) {
       const stats = await fs.stat(absolutePath);
@@ -191,7 +177,7 @@ export default class LocalFileSystemService extends FileSystemService {
   async copy(source: string, destination: string, options: { overwrite?: boolean } = {}): Promise<boolean> {
     const absoluteSource = this.relativeOrAbsolutePathToAbsolutePath(source);
     const absoluteDestination = this.relativeOrAbsolutePathToAbsolutePath(destination);
-    const { overwrite = false } = options;
+    const {overwrite = false} = options;
 
     if (!(await fs.pathExists(absoluteSource))) {
       throw new Error(`Source path ${source} does not exist`);
@@ -201,11 +187,11 @@ export default class LocalFileSystemService extends FileSystemService {
       throw new Error(`Destination path ${destination} already exists`);
     }
 
-    await fs.copy(absoluteSource, absoluteDestination, { overwrite });
+    await fs.copy(absoluteSource, absoluteDestination, {overwrite});
     return true;
   }
 
-  async glob(pattern: string, { ig }: { ig?: (p: string) => boolean } = {}): Promise<string[]> {
+  async glob(pattern: string, {ig}: { ig?: (p: string) => boolean } = {}): Promise<string[]> {
     ig ??= (await super.createIgnoreFilter()) as (p: string) => boolean;
 
     try {
@@ -226,7 +212,11 @@ export default class LocalFileSystemService extends FileSystemService {
 
   async watch(
     dir: string,
-    { ig, pollInterval = 1000, stabilityThreshold = 2000 }: { ig?: (p: string) => boolean; pollInterval?: number; stabilityThreshold?: number } = {},
+    {ig, pollInterval = 1000, stabilityThreshold = 2000}: {
+      ig?: (p: string) => boolean;
+      pollInterval?: number;
+      stabilityThreshold?: number
+    } = {},
   ): Promise<FSWatcher> {
     ig ??= (await super.createIgnoreFilter()) as (p: string) => boolean;
     const absolutePath = path.resolve(this.rootDirectory, dir);
@@ -259,7 +249,7 @@ export default class LocalFileSystemService extends FileSystemService {
   }
 
   async executeCommand(command: string | string[], options: ExecuteCommandOptions = {}): Promise<ExecuteCommandResult> {
-    const { timeoutSeconds = 60, env = {}, workingDirectory = "./" } = options;
+    const {timeoutSeconds = 60, env = {}, workingDirectory = "./"} = options;
 
     if (!command) {
       throw new Error("Command is required");
@@ -271,7 +261,7 @@ export default class LocalFileSystemService extends FileSystemService {
 
     const execOpts: any = {
       cwd,
-      env: { ...process.env, ...env },
+      env: {...process.env, ...env},
       timeout: timeout * 1000,
       maxBuffer: 1024 * 1024,
     };
@@ -290,13 +280,12 @@ export default class LocalFileSystemService extends FileSystemService {
         result = await execa(command, execOpts);
       }
 
-      const { stdout, stderr, exitCode } = result;
+      const {stdout, stderr, exitCode} = result;
       return {
         ok: true,
         exitCode: exitCode,
         stdout: (stdout?.trim?.() ?? ""),
         stderr: (stderr?.trim?.() ?? ""),
-        error: null,
       };
     } catch (err: any) {
       return {
@@ -304,24 +293,27 @@ export default class LocalFileSystemService extends FileSystemService {
         exitCode: typeof err.exitCode === "number" ? err.exitCode : 1,
         stdout: (err.stdout?.trim?.() ?? ""),
         stderr: (err.stderr?.trim?.() ?? ""),
-        error: err.shortMessage || err.message,
+        error: err.shortMessage || err.message || "Unknown error",
       };
     }
   }
 
   async grep(
     searchString: string,
-    options: { ignoreFilter?: (p: string) => boolean; includeContent?: { linesBefore?: number; linesAfter?: number } } = {},
+    options: {
+      ignoreFilter?: (p: string) => boolean;
+      includeContent?: { linesBefore?: number; linesAfter?: number }
+    } = {},
   ): Promise<Array<{ file: string; line: number; match: string; content: string | null }>> {
-    const { ignoreFilter, includeContent = {} } = options;
-    const { linesBefore = 0, linesAfter = 0 } = includeContent;
+    const {ignoreFilter, includeContent = {}} = options;
+    const {linesBefore = 0, linesAfter = 0} = includeContent;
 
     if (!searchString) {
       throw new Error("Search string is required");
     }
 
     const allFiles: string[] = [];
-    for await (const file of this.getDirectoryTree("", { ig: ignoreFilter })) {
+    for await (const file of this.getDirectoryTree("", {ig: ignoreFilter})) {
       allFiles.push(path.join(this.rootDirectory, file));
     }
 
@@ -363,14 +355,14 @@ export default class LocalFileSystemService extends FileSystemService {
     return results;
   }
 
-  async *getDirectoryTree(
+  async* getDirectoryTree(
     dir: string,
-    { ig, recursive = true }: { ig?: (p: string) => boolean; recursive?: boolean } = {},
+    {ig, recursive = true}: { ig?: (p: string) => boolean; recursive?: boolean } = {},
   ): AsyncGenerator<string> {
     ig ??= (await super.createIgnoreFilter()) as (p: string) => boolean;
 
     const absoluteDir = path.resolve(this.rootDirectory, dir);
-    const items = await fs.readdir(absoluteDir, { withFileTypes: true });
+    const items = await fs.readdir(absoluteDir, {withFileTypes: true});
 
     for (const item of items) {
       const itemPath = path.join(absoluteDir, item.name);
@@ -381,7 +373,7 @@ export default class LocalFileSystemService extends FileSystemService {
       if (item.isDirectory()) {
         yield `${relPath}/`;
         if (recursive) {
-          yield* this.getDirectoryTree(relPath, { ig });
+          yield* this.getDirectoryTree(relPath, {ig});
         }
       } else {
         yield relPath;
