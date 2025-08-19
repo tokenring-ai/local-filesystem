@@ -1,31 +1,28 @@
 {
-	"name": "@token-ring/local-filesystem",
-	"version": "0.1.0",
+ "name": "@token-ring/local-filesystem",
+ "version": "0.1.0",
  "description": "A local filesystem package for token-ring",
-	"dependencies": {
-		"@token-ring/chat": "0.1.0",
-
-		"@token-ring/filesystem": "0.1.0",
-		"@token-ring/registry": "0.1.0",
+ "dependencies": {
+  "@token-ring/chat": "0.1.0",
+  "@token-ring/filesystem": "0.1.0",
+  "@token-ring/registry": "0.1.0",
   "chokidar": "^4.0.3",
-		"execa": "^9.6.0",
-		"fs-extra": "^11.3.1",
-		"glob": "^11.0.3",
-		"glob-gitignore": "^1.0.15"
-	},
-	"devDependencies": {
-		"@types/fs-extra": "^11.0.4",
-		"vitest": "^3.2.4"
-	},
-	"exports": {
-		".": "./index.ts",
-		"./*": "./*.ts"
-	},
-	"license": "MIT",
-	"scripts": {
-
-		"test": "node_modules/.bin/vitest run"
-
-	},
-	"type": "module"
+  "execa": "^9.6.0",
+  "fs-extra": "^11.3.1",
+  "glob": "^11.0.3",
+  "glob-gitignore": "^1.0.15"
+ },
+ "devDependencies": {
+  "@types/fs-extra": "^11.0.4",
+  "vitest": "^3.2.4"
+ },
+ "exports": {
+  ".": "./index.ts",
+  "./*": "./*.ts"
+ },
+ "license": "MIT",
+ "scripts": {
+  "test": "node_modules/.bin/vitest run"
+ },
+ "type": "module"
 }

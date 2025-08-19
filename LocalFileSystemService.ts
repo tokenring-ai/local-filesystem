@@ -74,6 +74,13 @@ export default class LocalFileSystemService extends FileSystemService {
     return true;
   }
 
+  async appendFile(filePath: string, finalContent: string | Buffer): Promise<boolean> {
+    const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
+    await fs.ensureDir(path.dirname(absolutePath));
+    await fs.appendFile(absolutePath, finalContent);
+    return true;
+  }
+
   async deleteFile(filePath: string): Promise<boolean> {
     const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
     if (!(await fs.pathExists(absolutePath))) {
