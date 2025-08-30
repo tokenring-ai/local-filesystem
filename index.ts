@@ -4,4 +4,4 @@ export const name = packageJSON.name;
 export const version = packageJSON.version;
 export const description = packageJSON.description;
 
-export {default as LocalFileSystemService} from "./LocalFileSystemService.ts";
+export {default as LocalFileSystemService} from "./LocalFileSystemProvider.ts";

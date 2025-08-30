@@ -1,50 +1,36 @@
-import {FileSystemService} from "@token-ring/filesystem";
-import {ExecuteCommandOptions, ExecuteCommandResult} from "@token-ring/filesystem/FileSystemService";
+import FileSystemProvider, {
+  ExecuteCommandOptions, ExecuteCommandResult,
+  GlobOptions,
+  StatLike,
+  WatchOptions,
+  DirectoryTreeOptions, GrepOptions, GrepResult
+} from "@token-ring/filesystem/FileSystemProvider";
 import chokidar, {FSWatcher} from "chokidar";
 import {execa} from "execa";
 import fs from "fs-extra";
 import {glob} from "glob";
 import path from "node:path";
 
-interface ConstructorOptions {
-  rootDirectory: string;
+export interface LocalFileSystemProviderOptions {
+  baseDirectory: string;
   defaultSelectedFiles?: string[];
 }
 
-interface StatLike {
-  path: string;
-  absolutePath: string;
-  isFile: boolean;
-  isDirectory: boolean;
-  isSymbolicLink: boolean;
-  size: number;
-  created: Date;
-  modified: Date;
-  accessed: Date;
-}
 
-
-export default class LocalFileSystemService extends FileSystemService {
-  static constructorProperties = {
-    rootDirectory: {
-      type: "string",
-      required: true,
-      description: "Root directory for file operations",
-    },
-  } as const;
+export default class LocalFileSystemProvider extends FileSystemProvider {
   name = "LocalFilesystemService";
   description = "Provides access to the local filesystem";
   private readonly rootDirectory!: string;
 
-  constructor(options: ConstructorOptions) {
-    const {rootDirectory} = options;
+  constructor(options: LocalFileSystemProviderOptions) {
+    const {baseDirectory} = options;
 
-    super(options);
+    super();
 
-    if (!fs.existsSync(rootDirectory)) {
-      throw new Error(`Root directory ${rootDirectory} does not exist`);
+    if (!fs.existsSync(baseDirectory)) {
+      throw new Error(`Root directory ${baseDirectory} does not exist`);
     }
-    this.rootDirectory = rootDirectory;
+    this.rootDirectory = baseDirectory;
   }
 
   getBaseDirectory(): string {
@@ -198,9 +184,7 @@ export default class LocalFileSystemService extends FileSystemService {
     return true;
   }
 
-  async glob(pattern: string, {ig}: { ig?: (p: string) => boolean } = {}): Promise<string[]> {
-    ig ??= (await super.createIgnoreFilter()) as (p: string) => boolean;
-
+  async glob(pattern: string, {ignoreFilter}: GlobOptions): Promise<string[]> {
     try {
       return glob
         .sync(pattern, {
@@ -210,7 +194,7 @@ export default class LocalFileSystemService extends FileSystemService {
           absolute: false,
         })
         .filter((file) => {
-          return !ig!(file);
+          return ignoreFilter(file);
         });
     } catch (error: any) {
       throw new Error(`Glob operation failed: ${error.message}`);
@@ -219,13 +203,8 @@ export default class LocalFileSystemService extends FileSystemService {
 
   async watch(
     dir: string,
-    {ig, pollInterval = 1000, stabilityThreshold = 2000}: {
-      ig?: (p: string) => boolean;
-      pollInterval?: number;
-      stabilityThreshold?: number
-    } = {},
+    {ignoreFilter, pollInterval = 1000, stabilityThreshold = 2000}: WatchOptions
   ): Promise<FSWatcher> {
-    ig ??= (await super.createIgnoreFilter()) as (p: string) => boolean;
     const absolutePath = path.resolve(this.rootDirectory, dir);
 
     if (!(await fs.pathExists(absolutePath))) {
@@ -242,7 +221,7 @@ export default class LocalFileSystemService extends FileSystemService {
         }
 
         try {
-          return ig!(file);
+          return ignoreFilter!(file);
         } catch (_error) {
           return true;
         }
@@ -307,11 +286,8 @@ export default class LocalFileSystemService extends FileSystemService {
 
   async grep(
     searchString: string,
-    options: {
-      ignoreFilter?: (p: string) => boolean;
-      includeContent?: { linesBefore?: number; linesAfter?: number }
-    } = {},
-  ): Promise<Array<{ file: string; line: number; match: string; content: string | null }>> {
+    options: GrepOptions
+  ): Promise<GrepResult[]> {
     const {ignoreFilter, includeContent = {}} = options;
     const {linesBefore = 0, linesAfter = 0} = includeContent;
 
@@ -320,7 +296,7 @@ export default class LocalFileSystemService extends FileSystemService {
     }
 
     const allFiles: string[] = [];
-    for await (const file of this.getDirectoryTree("", {ig: ignoreFilter})) {
+    for await (const file of this.getDirectoryTree("", {ignoreFilter})) {
       allFiles.push(path.join(this.rootDirectory, file));
     }
 
@@ -364,9 +340,8 @@ export default class LocalFileSystemService extends FileSystemService {
 
   async* getDirectoryTree(
     dir: string,
-    {ig, recursive = true}: { ig?: (p: string) => boolean; recursive?: boolean } = {},
+    {ignoreFilter, recursive = true}: DirectoryTreeOptions
   ): AsyncGenerator<string> {
-    ig ??= (await super.createIgnoreFilter()) as (p: string) => boolean;
 
     const absoluteDir = path.resolve(this.rootDirectory, dir);
     const items = await fs.readdir(absoluteDir, {withFileTypes: true});
@@ -375,12 +350,12 @@ export default class LocalFileSystemService extends FileSystemService {
       const itemPath = path.join(absoluteDir, item.name);
       const relPath = path.relative(this.rootDirectory, itemPath);
 
-      if (ig(relPath)) continue;
+      if (ignoreFilter(relPath)) continue;
 
       if (item.isDirectory()) {
         yield `${relPath}/`;
         if (recursive) {
-          yield* this.getDirectoryTree(relPath, {ig});
+          yield* this.getDirectoryTree(relPath, {ignoreFilter});
         }
       } else {
         yield relPath;

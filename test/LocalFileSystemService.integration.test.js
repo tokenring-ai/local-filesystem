@@ -15,7 +15,7 @@ describe("LocalFileSystemService Integration Tests", () => {
 		// Create a temporary directory for testing
 		testDir = path.join(process.cwd(), "test-temp", Date.now().toString());
 		fs.ensureDirSync(testDir);
-		service = new LocalFileSystemService({ rootDirectory: testDir });
+		service = new LocalFileSystemService({ baseDirectory: testDir });
 	});
 
 	afterEach(() => {
