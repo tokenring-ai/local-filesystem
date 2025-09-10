@@ -1,13 +1,13 @@
-# @token-ring/local-filesystem
+# @tokenring-ai/local-filesystem
 
 A concrete implementation of the FileSystemService abstraction that provides safe access to your local disk for Token
 Ring apps and agents.
 
 This package is typically used together with:
 
-- @token-ring/registry
-- @token-ring/filesystem (abstract base definitions and tools)
-- @token-ring/chat (optional, for chat-driven workflows)
+- @tokenring-ai/registry
+- @tokenring-ai/filesystem (abstract base definitions and tools)
+- @tokenring-ai/chat (optional, for chat-driven workflows)
 
 ## What it does
 
@@ -19,7 +19,7 @@ Key characteristics:
 
 - Root-scoped: all operations are confined to rootDirectory; attempts to access paths outside are rejected.
 - Ignore-aware: most listing/searching methods accept an ignore filter; by default the service uses the
-  FileSystemService.createIgnoreFilter implementation from @token-ring/filesystem (e.g., respecting typical VCS/IDE
+  FileSystemService.createIgnoreFilter implementation from @tokenring-ai/filesystem (e.g., respecting typical VCS/IDE
   ignore rules where supported in your app).
 - Watcher-backed: uses chokidar under the hood for robust file watching.
 - Shell execution: uses execa with timeouts and environment overrides.
@@ -33,7 +33,7 @@ package.json (excerpt):
 ```json
 {
   "dependencies": {
-    "@token-ring/local-filesystem": "0.1.0"
+    "@tokenring-ai/local-filesystem": "0.1.0"
   }
 }
 ```
@@ -43,8 +43,8 @@ package.json (excerpt):
 Programmatic usage with the registry:
 
 ```ts
-import {ServiceRegistry} from "@token-ring/registry";
-import {LocalFileSystemService} from "@token-ring/local-filesystem";
+import {ServiceRegistry} from "@tokenring-ai/registry";
+import {LocalFileSystemService} from "@tokenring-ai/local-filesystem";
 
 const registry = new ServiceRegistry();
 await registry.start();
@@ -77,7 +77,7 @@ if (result.ok) {
 Using with tr-coder and code-watch:
 
 ```ts
-import { LocalFileSystemService } from "@token-ring/local-filesystem";
+import { LocalFileSystemService } from "@tokenring-ai/local-filesystem";
 // tr-coder will typically register this automatically, but you can add it manually
 new LocalFileSystemService({ rootDirectory: process.cwd() });
 ```
@@ -134,7 +134,7 @@ Process execution
 ## Exports
 
 ```ts
-import {name, version, description, LocalFileSystemService} from "@token-ring/local-filesystem";
+import {name, version, description, LocalFileSystemService} from "@tokenring-ai/local-filesystem";
 ```
 
 - name/version/description are re-exported from this package’s package.json via index.ts.
@@ -145,8 +145,8 @@ import {name, version, description, LocalFileSystemService} from "@token-ring/lo
 - execa: process execution
 - fs-extra: file utilities
 - glob: pattern-based file listing
-- @token-ring/filesystem: abstract base and ignore filter helpers
-- @token-ring/registry: service registration support
+- @tokenring-ai/filesystem: abstract base and ignore filter helpers
+- @tokenring-ai/registry: service registration support
 
 ## License
 

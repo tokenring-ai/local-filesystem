@@ -1,11 +1,10 @@
 {
- "name": "@token-ring/local-filesystem",
+ "name": "@tokenring-ai/local-filesystem",
  "version": "0.1.0",
- "description": "A local filesystem package for token-ring",
+ "description": "A local filesystem package for tokenring-ai",
  "dependencies": {
-  "@token-ring/chat": "0.1.0",
-  "@token-ring/filesystem": "0.1.0",
-  "@token-ring/registry": "0.1.0",
+  "@tokenring-ai/agent": "0.1.0",
+  "@tokenring-ai/filesystem": "0.1.0",
   "chokidar": "^4.0.3",
   "execa": "^9.6.0",
   "fs-extra": "^11.3.1",

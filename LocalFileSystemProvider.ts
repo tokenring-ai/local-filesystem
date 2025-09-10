@@ -1,10 +1,13 @@
 import FileSystemProvider, {
-  ExecuteCommandOptions, ExecuteCommandResult,
+  DirectoryTreeOptions,
+  ExecuteCommandOptions,
+  ExecuteCommandResult,
   GlobOptions,
+  GrepOptions,
+  GrepResult,
   StatLike,
-  WatchOptions,
-  DirectoryTreeOptions, GrepOptions, GrepResult
-} from "@token-ring/filesystem/FileSystemProvider";
+  WatchOptions
+} from "@tokenring-ai/filesystem/FileSystemProvider";
 import chokidar, {FSWatcher} from "chokidar";
 import {execa} from "execa";
 import fs from "fs-extra";
@@ -23,9 +26,9 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
   private readonly rootDirectory!: string;
 
   constructor(options: LocalFileSystemProviderOptions) {
+    super();
     const {baseDirectory} = options;
 
-    super();
 
     if (!fs.existsSync(baseDirectory)) {
       throw new Error(`Root directory ${baseDirectory} does not exist`);
@@ -186,6 +189,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
 
   async glob(pattern: string, {ignoreFilter}: GlobOptions): Promise<string[]> {
     try {
+
       return glob
         .sync(pattern, {
           cwd: this.rootDirectory,
@@ -194,7 +198,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
           absolute: false,
         })
         .filter((file) => {
-          return ignoreFilter(file);
+          return !ignoreFilter(file);
         });
     } catch (error: any) {
       throw new Error(`Glob operation failed: ${error.message}`);
