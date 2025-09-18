@@ -9,7 +9,7 @@ import FileSystemProvider, {
   WatchOptions
 } from "@tokenring-ai/filesystem/FileSystemProvider";
 import chokidar, {FSWatcher} from "chokidar";
-import {execa} from "execa";
+import {execa, Options} from "execa";
 import fs from "fs-extra";
 import {glob} from "glob";
 import path from "node:path";
@@ -249,11 +249,12 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
 
     const timeout = Math.max(5, Math.min(timeoutSeconds || 60, 600));
 
-    const execOpts: any = {
+    const execOpts: Options = {
       cwd,
       env: {...process.env, ...env},
       timeout: timeout * 1000,
       maxBuffer: 1024 * 1024,
+      stdin: "ignore",
     };
 
     try {
@@ -266,8 +267,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
         const [cmd, ...args] = command;
         result = await execa(cmd, args, execOpts);
       } else {
-        execOpts.shell = true;
-        result = await execa(command, execOpts);
+        result = await execa(command, {...execOpts, shell: true});
       }
 
       const {stdout, stderr, exitCode} = result;
