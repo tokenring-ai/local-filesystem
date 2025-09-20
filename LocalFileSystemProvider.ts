@@ -301,7 +301,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
 
     const allFiles: string[] = [];
     for await (const file of this.getDirectoryTree("", {ignoreFilter})) {
-      allFiles.push(path.join(this.rootDirectory, file));
+      allFiles.push(file);
     }
 
     const filesToSearch = ignoreFilter ? allFiles.filter((file) => !ignoreFilter(file)) : allFiles;
@@ -310,7 +310,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
 
     for (const file of filesToSearch) {
       try {
-        const content = await this.getFile(path.relative(this.rootDirectory, file));
+        const content = await this.getFile(file);
         if (!content) continue;
         const lines = content.split("\n");
 
@@ -327,7 +327,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
             }
 
             results.push({
-              file: path.relative(this.rootDirectory, file),
+              file,
               line: lineNum + 1,
               match: line,
               content: contextContent,
