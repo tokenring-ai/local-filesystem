@@ -21,7 +21,7 @@ export interface LocalFileSystemProviderOptions {
 
 
 export default class LocalFileSystemProvider extends FileSystemProvider {
-  name = "LocalFilesystemService";
+  name = "LocalFilesystemProvider";
   description = "Provides access to the local filesystem";
   private readonly rootDirectory!: string;
 
