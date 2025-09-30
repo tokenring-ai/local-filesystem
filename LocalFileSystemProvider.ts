@@ -13,6 +13,14 @@ import {execa, Options} from "execa";
 import fs from "fs-extra";
 import {glob} from "glob";
 import path from "node:path";
+import {promisify} from "node:util";
+
+export class GlobError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'GlobError';
+  }
+}
 
 export interface LocalFileSystemProviderOptions {
   baseDirectory: string;
@@ -189,19 +197,15 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
 
   async glob(pattern: string, {ignoreFilter}: GlobOptions): Promise<string[]> {
     try {
-
-      return glob
-        .sync(pattern, {
-          cwd: this.rootDirectory,
-          dot: true,
-          nodir: true,
-          absolute: false,
-        })
-        .filter((file) => {
-          return !ignoreFilter(file);
-        });
+      const files = await glob(pattern, {
+        cwd: this.rootDirectory,
+        dot: true,
+        nodir: true,
+        absolute: false,
+      });
+      return files.filter((file) => !ignoreFilter?.(file));
     } catch (error: any) {
-      throw new Error(`Glob operation failed: ${error.message}`);
+      throw new GlobError(`Glob operation failed: ${error.message}`);
     }
   }
 
