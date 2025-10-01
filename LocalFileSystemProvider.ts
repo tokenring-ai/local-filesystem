@@ -20,13 +20,12 @@ export interface LocalFileSystemProviderOptions {
 }
 
 
-export default class LocalFileSystemProvider extends FileSystemProvider {
+export default class LocalFileSystemProvider implements FileSystemProvider {
   name = "LocalFilesystemProvider";
   description = "Provides access to the local filesystem";
   private readonly rootDirectory!: string;
 
   constructor(options: LocalFileSystemProviderOptions) {
-    super();
     const {baseDirectory} = options;
 
 
@@ -187,14 +186,14 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
     return true;
   }
 
-  async glob(pattern: string, {ignoreFilter}: GlobOptions): Promise<string[]> {
+  async glob(pattern: string, {ignoreFilter, includeDirectories = false}: GlobOptions): Promise<string[]> {
     try {
 
       return glob
         .sync(pattern, {
           cwd: this.rootDirectory,
           dot: true,
-          nodir: true,
+          nodir: !includeDirectories,
           absolute: false,
         })
         .filter((file) => {
@@ -310,7 +309,7 @@ export default class LocalFileSystemProvider extends FileSystemProvider {
 
     for (const file of filesToSearch) {
       try {
-        const content = await this.getFile(file);
+        const content = await this.readFile(file, "utf8");
         if (!content) continue;
         const lines = content.split("\n");
 
