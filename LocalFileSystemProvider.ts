@@ -188,7 +188,6 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
 
   async glob(pattern: string, {ignoreFilter, includeDirectories = false}: GlobOptions): Promise<string[]> {
     try {
-
       return glob
         .sync(pattern, {
           cwd: this.rootDirectory,
