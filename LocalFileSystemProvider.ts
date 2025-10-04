@@ -13,12 +13,7 @@ import {execa, Options} from "execa";
 import fs from "fs-extra";
 import {glob} from "glob";
 import path from "node:path";
-
-export interface LocalFileSystemProviderOptions {
-  baseDirectory: string;
-  defaultSelectedFiles?: string[];
-}
-
+import {z} from "zod";
 
 export default class LocalFileSystemProvider implements FileSystemProvider {
   name = "LocalFilesystemProvider";
@@ -380,3 +375,8 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
     }
   }
 }
+export const LocalFileSystemProviderOptionsSchema = z.object({
+  baseDirectory: z.string(),
+  defaultSelectedFiles: z.array(z.string()).optional(),
+});
+export type LocalFileSystemProviderOptions = z.infer<typeof LocalFileSystemProviderOptionsSchema>;
