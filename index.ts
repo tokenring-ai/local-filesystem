@@ -4,7 +4,7 @@ import FileSystemService from "@tokenring-ai/filesystem/FileSystemService";
 import LocalFileSystemProvider, {LocalFileSystemProviderOptionsSchema} from "./LocalFileSystemProvider.js";
 import packageJSON from './package.json' with {type: 'json'};
 
-export const packageInfo: TokenRingPackage = {
+export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
@@ -22,6 +22,6 @@ export const packageInfo: TokenRingPackage = {
       });
     }
   }
-};
+} as TokenRingPackage;
 
 export {default as LocalFileSystemService} from "./LocalFileSystemProvider.ts";
