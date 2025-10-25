@@ -12,7 +12,7 @@ export default {
     const filesystemConfig = agentTeam.getConfigSlice("filesystem", FileSystemConfigSchema);
 
     if (filesystemConfig) {
-      agentTeam.services.waitForItemByType(FileSystemService).then(fileSystemService => {
+      agentTeam.waitForService(FileSystemService, fileSystemService => {
         for (const name in filesystemConfig.providers) {
           const provider = filesystemConfig.providers[name];
           if (provider.type === "local") {
