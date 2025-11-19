@@ -8,12 +8,12 @@
   "chokidar": "^4.0.3",
   "execa": "^9.6.0",
   "fs-extra": "^11.3.2",
-  "glob": "^11.0.3",
+  "glob": "^12.0.0",
   "glob-gitignore": "^1.0.15"
  },
  "devDependencies": {
   "@types/fs-extra": "^11.0.4",
-  "vitest": "^3.2.4"
+  "vitest": "^4.0.10"
  },
  "exports": {
   ".": "./index.ts",
