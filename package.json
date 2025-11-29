@@ -1,10 +1,14 @@
 {
  "name": "@tokenring-ai/local-filesystem",
- "version": "0.1.0",
+ "version": "0.2.0",
  "description": "A local filesystem package for tokenring-ai",
  "dependencies": {
-  "@tokenring-ai/agent": "0.1.0",
-  "@tokenring-ai/filesystem": "0.1.0",
+  "@ai-sdk/mcp": "^0.0.11",
+  "@tokenring-ai/app": "0.2.0",
+  "@tokenring-ai/chat": "0.2.0",
+  "zod": "^4.1.13",
+  "@tokenring-ai/agent": "0.2.0",
+  "@tokenring-ai/filesystem": "0.2.0",
   "chokidar": "^5.0.0",
   "execa": "^9.6.0",
   "fs-extra": "^11.3.2",
@@ -12,8 +16,7 @@
   "glob-gitignore": "^1.0.15"
  },
  "devDependencies": {
-  "@types/fs-extra": "^11.0.4",
-  "vitest": "^4.0.14"
+  "@types/fs-extra": "^11.0.4"
  },
  "exports": {
   ".": "./index.ts",
