@@ -231,8 +231,8 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
     });
   }
 
-  async executeCommand(command: string | string[], options: ExecuteCommandOptions = {}): Promise<ExecuteCommandResult> {
-    const {timeoutSeconds = 60, env = {}, workingDirectory = "./"} = options;
+  async executeCommand(command: string | string[], options: ExecuteCommandOptions): Promise<ExecuteCommandResult> {
+    const {timeoutSeconds, env = {}, workingDirectory = "./"} = options;
 
     if (!command) {
       throw new Error("Command is required");
@@ -240,12 +240,10 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
 
     const cwd = this.relativeOrAbsolutePathToAbsolutePath(workingDirectory);
 
-    const timeout = Math.max(5, Math.min(timeoutSeconds || 60, 600));
-
     const execOpts: Options = {
       cwd,
       env: {...process.env, ...env},
-      timeout: timeout * 1000,
+      timeout: timeoutSeconds * 1000,
       maxBuffer: 1024 * 1024,
       stdin: "ignore",
     };
