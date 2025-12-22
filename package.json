@@ -16,7 +16,9 @@
     "glob-gitignore": "^1.0.15"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4"
+    "@types/fs-extra": "^11.0.4",
+    "vitest": "catalog:",
+    "typescript": "catalog:"
   },
   "exports": {
     ".": "./index.ts",
@@ -24,7 +26,10 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "node_modules/.bin/vitest run"
+    "test": "vitest run",
+    "build": "tsc --noEmit",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "type": "module"
 }
