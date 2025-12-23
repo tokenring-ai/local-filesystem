@@ -29,11 +29,6 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
     }
     this.rootDirectory = baseDirectory;
   }
-
-  getBaseDirectory(): string {
-    return this.rootDirectory;
-  }
-
   relativeOrAbsolutePathToAbsolutePath(p: string): string {
     if (path.isAbsolute(p)) {
       const relativePath = path.relative(this.rootDirectory, p);
