@@ -3,18 +3,15 @@
 A concrete implementation of the FileSystemProvider abstraction that provides safe, root-scoped access to your local filesystem for Token Ring apps and agents.
 
 This package is part of the Token Ring ecosystem and integrates seamlessly with:
-
 - `@tokenring-ai/app` - Token Ring application framework
-- `@tokenring-ai/filesystem` - Abstract base definitions and interfaces
+- `@tokenring-ai/filesystem` - Abstract filesystem interfaces and utilities
 - `@tokenring-ai/agent` - Agent framework
-- `@tokenring-ai/registry` - Service registry (optional)
 
 ## What it does
 
 LocalFileSystemProvider exposes a comprehensive, promise-based API for file and directory operations confined to a configured base directory. It provides utilities for file watching, shell command execution, text searching, and directory traversal with robust error handling and security boundaries.
 
 Key characteristics:
-
 - **Root-scoped**: All operations are confined to the baseDirectory; attempts to access paths outside are rejected
 - **Ignore-aware**: Most listing/searching methods accept an ignore filter for respecting VCS/IDE ignore rules
 - **Watcher-backed**: Uses chokidar for robust file system watching
@@ -26,10 +23,14 @@ Key characteristics:
 
 This package is part of the Token Ring monorepo. Add it to your dependencies:
 
+```bash
+bun add @tokenring-ai/local-filesystem
+```
+
 ```json
 {
   "dependencies": {
-    "@tokenring-ai/local-filesystem": "0.1.0"
+    "@tokenring-ai/local-filesystem": "0.2.0"
   }
 }
 ```
@@ -97,7 +98,7 @@ const files = await fsProvider.glob("**/*.txt");
 console.log(files); // ["test.txt", "subdir/file.txt"]
 
 // Search for text in files
-const results = await fsProvider.search("Hello");
+const results = await fsProvider.grep("Hello");
 console.log(results);
 // [
 //   { file: "test.txt", line: 1, match: "Hello, World!", content: null }
@@ -276,9 +277,7 @@ The provider includes comprehensive error handling:
 Run the test suite:
 
 ```bash
-npm test
-# or
-yarn test
+bun run test
 ```
 
 The test suite includes integration tests covering file operations, error handling, and edge cases.
