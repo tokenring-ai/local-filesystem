@@ -3,7 +3,6 @@
   "version": "0.2.0",
   "description": "A local filesystem package for tokenring-ai",
   "dependencies": {
-    "@ai-sdk/mcp": "^0.0.12",
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
     "zod": "catalog:",

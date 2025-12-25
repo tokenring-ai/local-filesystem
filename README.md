@@ -6,6 +6,7 @@ This package is part of the Token Ring ecosystem and integrates seamlessly with:
 - `@tokenring-ai/app` - Token Ring application framework
 - `@tokenring-ai/filesystem` - Abstract filesystem interfaces and utilities
 - `@tokenring-ai/agent` - Agent framework
+- `@ai-sdk/mcp` - AI Model Context Protocol integration
 
 ## What it does
 
@@ -18,6 +19,7 @@ Key characteristics:
 - **Shell execution**: Uses execa with configurable timeouts and environment overrides
 - **Type-safe**: Built with TypeScript and Zod for configuration validation
 - **Plugin architecture**: Designed to integrate with Token Ring applications as a plugin
+- **MCP Protocol**: Implements MCP server capabilities for AI integration
 
 ## Installation
 
