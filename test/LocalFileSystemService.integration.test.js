@@ -35,7 +35,7 @@ describe("LocalFileSystemService Integration Tests", () => {
    expect(await service.exists(filePath)).toBe(true);
 
    // Read the file
-   const readContent = await service.getFile(filePath);
+   const readContent = await service.readFile(filePath, "utf8");
    expect(readContent).toBe(content);
 
    // Get file stats
@@ -82,7 +82,7 @@ describe("LocalFileSystemService Integration Tests", () => {
    await service.copy(sourceFile, destFile);
 
    expect(await service.exists(destFile)).toBe(true);
-   const content = await service.getFile(destFile);
+   const content = await service.readFile(destFile, "utf8");
    expect(content).toBe(sourceContent);
   });
  });
@@ -106,7 +106,7 @@ describe("LocalFileSystemService Integration Tests", () => {
   it("should throw error for non-existent file operations", async () => {
    const nonExistentFile = "non-existent.txt";
 
-   await expect(service.getFile(nonExistentFile)).rejects.toThrow();
+   await expect(service.readFile(nonExistentFile, "utf8")).rejects.toThrow();
    await expect(service.deleteFile(nonExistentFile)).rejects.toThrow();
   });
 
