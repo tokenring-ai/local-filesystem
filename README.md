@@ -1,25 +1,23 @@
 # @tokenring-ai/local-filesystem
 
-A concrete implementation of the FileSystemProvider abstraction that provides safe, root-scoped access to your local filesystem for Token Ring apps and agents.
+## Overview
 
-This package is part of the Token Ring ecosystem and integrates seamlessly with:
-- `@tokenring-ai/app` - Token Ring application framework
-- `@tokenring-ai/filesystem` - Abstract filesystem interfaces and utilities
-- `@tokenring-ai/agent` - Agent framework
-- `@ai-sdk/mcp` - AI Model Context Protocol integration
+A concrete implementation of the FileSystemProvider abstraction that provides safe, root-scoped access to the local filesystem for Token Ring apps and agents.
 
-## What it does
+## Integration
 
-LocalFileSystemProvider exposes a comprehensive, promise-based API for file and directory operations confined to a configured base directory. It provides utilities for file watching, shell command execution, text searching, and directory traversal with robust error handling and security boundaries.
+- `@tokenring-ai/app`: Token Ring application framework
+- `@tokenring-ai/filesystem`: Abstract filesystem interfaces and utilities
+- `@tokenring-ai/agent`: Agent framework
 
-Key characteristics:
+## Features
+
 - **Root-scoped**: All operations are confined to the baseDirectory; attempts to access paths outside are rejected
 - **Ignore-aware**: Most listing/searching methods accept an ignore filter for respecting VCS/IDE ignore rules
 - **Watcher-backed**: Uses chokidar for robust file system watching
 - **Shell execution**: Uses execa with configurable timeouts and environment overrides
 - **Type-safe**: Built with TypeScript and Zod for configuration validation
 - **Plugin architecture**: Designed to integrate with Token Ring applications as a plugin
-- **MCP Protocol**: Implements MCP server capabilities for AI integration
 
 ## Installation
 
@@ -37,7 +35,93 @@ bun add @tokenring-ai/local-filesystem
 }
 ```
 
-## Usage
+## Core Components/API
+
+### Constructor
+
+```ts
+new LocalFileSystemProvider(options: LocalFileSystemProviderOptions)
+```
+
+**Options:**
+- `baseDirectory: string` - The root directory for all file operations (required)
+- `defaultSelectedFiles?: string[]` - Default file patterns for selection (optional)
+
+### Path Utilities
+
+- `relativeOrAbsolutePathToAbsolutePath(p: string): string` - Converts any path to absolute path within bounds
+- `relativeOrAbsolutePathToRelativePath(p: string): string` - Converts absolute path to relative path
+
+### File Operations
+
+- `writeFile(filePath: string, content: string | Buffer): Promise<boolean>` - Create or overwrite a file
+- `appendFile(filePath: string, content: string | Buffer): Promise<boolean>` - Append content to a file
+- `readFile(filePath: string, encoding?: BufferEncoding): Promise<string>` - Read file content
+- `deleteFile(filePath: string): Promise<boolean>` - Delete a file
+- `rename(oldPath: string, newPath: string): Promise<boolean>` - Rename/move a file
+- `exists(filePath: string): Promise<boolean>` - Check if file exists
+- `stat(filePath: string): Promise<StatLike>` - Get file/directory statistics
+- `chmod(filePath: string, mode: number): Promise<boolean>` - Change file permissions
+
+### Directory Operations
+
+- `createDirectory(dirPath: string, options?: { recursive?: boolean }): Promise<boolean>` - Create directory
+- `copy(source: string, destination: string, options?: { overwrite?: boolean }): Promise<boolean>` - Copy files/directories
+
+### Search and Listing
+
+- `glob(pattern: string, options?: GlobOptions): Promise<string[]>` - Find files matching glob patterns
+- `grep(searchString: string, options?: GrepOptions): Promise<GrepResult[]>` - Search for text in files
+- `getDirectoryTree(dir: string, options?: DirectoryTreeOptions): AsyncGenerator<string>` - Traverse directory tree
+
+### File Watching
+
+- `watch(dir: string, options?: WatchOptions): Promise<FSWatcher>` - Watch directory for changes
+
+### Command Execution
+
+- `executeCommand(command: string | string[], options?: ExecuteCommandOptions): Promise<ExecuteCommandResult>` - Execute shell commands
+
+## Type Definitions
+
+### LocalFileSystemProviderOptions
+
+```ts
+interface LocalFileSystemProviderOptions {
+  baseDirectory: string;
+  defaultSelectedFiles?: string[];
+}
+```
+
+### StatLike
+
+```ts
+interface StatLike {
+  path: string;
+  absolutePath: string;
+  isFile: boolean;
+  isDirectory: boolean;
+  isSymbolicLink: boolean;
+  size: number;
+  created: Date;
+  modified: Date;
+  accessed: Date;
+}
+```
+
+### ExecuteCommandResult
+
+```ts
+interface ExecuteCommandResult {
+  ok: boolean;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  error?: string;
+}
+```
+
+## Usage Examples
 
 ### As a Token Ring Plugin
 
@@ -70,7 +154,7 @@ await app.start();
 You can also use the class directly:
 
 ```ts
-import { LocalFileSystemProvider } from "@tokenring-ai/local-filesystem";
+import LocalFileSystemProvider from "@tokenring-ai/local-filesystem";
 
 const fsProvider = new LocalFileSystemProvider({
   baseDirectory: process.cwd(),
@@ -148,94 +232,7 @@ try {
 }
 ```
 
-## API Reference
-
-### Constructor
-
-```ts
-new LocalFileSystemProvider(options: LocalFileSystemProviderOptions)
-```
-
-**Options:**
-- `baseDirectory: string` - The root directory for all file operations (required)
-- `defaultSelectedFiles?: string[]` - Default file patterns for selection (optional)
-
-### Path Utilities
-
-- `getBaseDirectory(): string` - Returns the configured base directory
-- `relativeOrAbsolutePathToAbsolutePath(p: string): string` - Converts any path to absolute path within bounds
-- `relativeOrAbsolutePathToRelativePath(p: string): string` - Converts absolute path to relative path
-
-### File Operations
-
-- `writeFile(filePath: string, content: string | Buffer): Promise<boolean>` - Create or overwrite a file
-- `appendFile(filePath: string, content: string | Buffer): Promise<boolean>` - Append content to a file
-- `readFile(filePath: string, encoding?: BufferEncoding): Promise<string>` - Read file content
-- `deleteFile(filePath: string): Promise<boolean>` - Delete a file
-- `rename(oldPath: string, newPath: string): Promise<boolean>` - Rename/move a file
-- `exists(filePath: string): Promise<boolean>` - Check if file exists
-- `stat(filePath: string): Promise<StatLike>` - Get file/directory statistics
-- `chmod(filePath: string, mode: number): Promise<boolean>` - Change file permissions
-
-### Directory Operations
-
-- `createDirectory(dirPath: string, options?: { recursive?: boolean }): Promise<boolean>` - Create directory
-- `copy(source: string, destination: string, options?: { overwrite?: boolean }): Promise<boolean>` - Copy files/directories
-
-### Search and Listing
-
-- `glob(pattern: string, options?: GlobOptions): Promise<string[]>` - Find files matching glob patterns
-- `grep(searchString: string, options?: GrepOptions): Promise<GrepResult[]>` - Search for text in files
-- `getDirectoryTree(dir: string, options?: DirectoryTreeOptions): AsyncGenerator<string>` - Traverse directory tree
-
-### File Watching
-
-- `watch(dir: string, options?: WatchOptions): Promise<FSWatcher>` - Watch directory for changes
-
-### Command Execution
-
-- `executeCommand(command: string | string[], options?: ExecuteCommandOptions): Promise<ExecuteCommandResult>` - Execute shell commands
-
-## Type Definitions
-
-### LocalFileSystemProviderOptions
-
-```ts
-interface LocalFileSystemProviderOptions {
-  baseDirectory: string;
-  defaultSelectedFiles?: string[];
-}
-```
-
-### StatLike
-
-```ts
-interface StatLike {
-  path: string;
-  absolutePath: string;
-  isFile: boolean;
-  isDirectory: boolean;
-  isSymbolicLink: boolean;
-  size: number;
-  created: Date;
-  modified: Date;
-  accessed: Date;
-}
-```
-
-### ExecuteCommandResult
-
-```ts
-interface ExecuteCommandResult {
-  ok: boolean;
-  exitCode: number;
-  stdout: string;
-  stderr: string;
-  error?: string;
-}
-```
-
-## Configuration
+## Plugin Configuration
 
 When using as a plugin, configure it in your app's filesystem config:
 
@@ -252,17 +249,6 @@ When using as a plugin, configure it in your app's filesystem config:
   }
 }
 ```
-
-## Dependencies
-
-- `@tokenring-ai/filesystem` - Abstract filesystem interfaces and utilities
-- `@tokenring-ai/agent` - Agent framework integration
-- `chokidar` - File system watching
-- `execa` - Process execution
-- `fs-extra` - Enhanced file system utilities
-- `glob` - Pattern-based file matching
-- `glob-gitignore` - Git ignore pattern support
-- `zod` - Type-safe schema validation
 
 ## Error Handling
 
@@ -286,4 +272,4 @@ The test suite includes integration tests covering file operations, error handli
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License - see [LICENSE](./LICENSE) file for details.
