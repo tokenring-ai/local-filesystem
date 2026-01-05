@@ -73,17 +73,13 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
   }
 
 
-  async readFile(filePath: string, encoding: BufferEncoding | undefined): Promise<string> {
+  async readFile(filePath: string): Promise<Buffer|null> {
     const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
-    if (!(await fs.pathExists(absolutePath))) {
-      throw new Error(`File ${filePath} does not exist`);
+    try {
+      return await fs.readFile(absolutePath);
+    } catch (error) {
+      return null;
     }
-    const stats = await fs.stat(absolutePath);
-    if (!stats.isFile()) {
-      throw new Error(`Path ${filePath} is not a file`);
-    }
-    const result = fs.readFileSync(absolutePath, {encoding});
-    return result.toString();
   }
 
   async rename(oldPath: string, newPath: string): Promise<boolean> {
@@ -296,9 +292,9 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
 
     for (const file of filesToSearch) {
       try {
-        const content = await this.readFile(file, "utf8");
+        const content = await this.readFile(file);
         if (!content) continue;
-        const lines = content.split("\n");
+        const lines = content.toString('utf-8').split("\n");
 
         for (let lineNum = 0; lineNum < lines.length; lineNum++) {
           const line = lines[lineNum];
