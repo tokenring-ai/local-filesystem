@@ -1,6 +1,6 @@
 import {TokenRingPlugin} from "@tokenring-ai/app";
-import {FileSystemConfigSchema} from "@tokenring-ai/filesystem";
 import FileSystemService from "@tokenring-ai/filesystem/FileSystemService";
+import {FileSystemConfigSchema} from "@tokenring-ai/filesystem/schema";
 import {z} from "zod";
 import LocalFileSystemProvider, {LocalFileSystemProviderOptionsSchema} from "./LocalFileSystemProvider.js";
 import packageJSON from './package.json' with {type: 'json'};
