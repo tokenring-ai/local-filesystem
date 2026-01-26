@@ -8,8 +8,8 @@ import {LocalFileSystemService} from "../index.js";
  * including file operations and edge cases.
  */
 describe("LocalFileSystemService Integration Tests", () => {
- let testDir;
- let service;
+ let testDir!: string;
+ let service!: LocalFileSystemService;
 
  beforeEach(() => {
   // Create a temporary directory for testing
@@ -35,7 +35,7 @@ describe("LocalFileSystemService Integration Tests", () => {
    expect(await service.exists(filePath)).toBe(true);
 
    // Read the file
-   const readContent = await service.readFile(filePath, "utf8");
+   const readContent = (await service.readFile(filePath))?.toString("utf8");
    expect(readContent).toBe(content);
 
    // Get file stats
@@ -82,7 +82,7 @@ describe("LocalFileSystemService Integration Tests", () => {
    await service.copy(sourceFile, destFile);
 
    expect(await service.exists(destFile)).toBe(true);
-   const content = await service.readFile(destFile, "utf8");
+   const content = (await service.readFile(destFile))?.toString( "utf8");
    expect(content).toBe(sourceContent);
   });
  });
@@ -106,7 +106,7 @@ describe("LocalFileSystemService Integration Tests", () => {
   it("should throw error for non-existent file operations", async () => {
    const nonExistentFile = "non-existent.txt";
 
-   await expect(service.readFile(nonExistentFile, "utf8")).rejects.toThrow();
+   await expect(service.readFile(nonExistentFile)).rejects.toThrow();
    await expect(service.deleteFile(nonExistentFile)).rejects.toThrow();
   });
 
@@ -127,7 +127,7 @@ describe("LocalFileSystemService Integration Tests", () => {
    await service.writeFile("other.js", "javascript");
 
    // Find txt files
-   const txtFiles = await service.glob("*.txt");
+   const txtFiles = await service.glob("*.txt", { ignoreFilter: () => false });
    expect(txtFiles).toContain("file1.txt");
    expect(txtFiles).toContain("file2.txt");
    expect(txtFiles).toHaveLength(2);
@@ -137,14 +137,14 @@ describe("LocalFileSystemService Integration Tests", () => {
  describe("Execute Command", () => {
   it("should execute shell commands", async () => {
    // Simple command test
-   const result = await service.executeCommand("echo hello");
+   const result = await service.executeCommand("echo hello",{ timeoutSeconds: 5});
    expect(result.ok).toBe(true);
    expect(result.stdout).toBe("hello");
   });
 
   it("should handle command errors gracefully", async () => {
    // Command that should fail
-   const result = await service.executeCommand("false");
+   const result = await service.executeCommand("false", { timeoutSeconds: 5 });
    expect(result.ok).toBe(false);
    expect(result.exitCode).toBe(1);
   });

@@ -12,12 +12,13 @@ A concrete implementation of the FileSystemProvider abstraction that provides sa
 
 ## Features
 
-- **Root-scoped**: All operations are confined to the baseDirectory; attempts to access paths outside are rejected
+- **Root-scoped**: All operations are confined to the `baseDirectory`; attempts to access paths outside are rejected
 - **Ignore-aware**: Most listing/searching methods accept an ignore filter for respecting VCS/IDE ignore rules
 - **Watcher-backed**: Uses chokidar for robust file system watching
 - **Shell execution**: Uses execa with configurable timeouts and environment overrides
 - **Type-safe**: Built with TypeScript and Zod for configuration validation
 - **Plugin architecture**: Designed to integrate with Token Ring applications as a plugin
+- **Zod validation**: Configuration schema built with Zod for runtime validation
 
 ## Installation
 
@@ -47,6 +48,11 @@ new LocalFileSystemProvider(options: LocalFileSystemProviderOptions)
 - `baseDirectory: string` - The root directory for all file operations (required)
 - `defaultSelectedFiles?: string[]` - Default file patterns for selection (optional)
 
+### Properties
+
+- `name: string` - Provider name ("LocalFilesystemProvider")
+- `description: string` - Provider description ("Provides access to the local filesystem")
+
 ### Path Utilities
 
 - `relativeOrAbsolutePathToAbsolutePath(p: string): string` - Converts any path to absolute path within bounds
@@ -56,7 +62,7 @@ new LocalFileSystemProvider(options: LocalFileSystemProviderOptions)
 
 - `writeFile(filePath: string, content: string | Buffer): Promise<boolean>` - Create or overwrite a file
 - `appendFile(filePath: string, content: string | Buffer): Promise<boolean>` - Append content to a file
-- `readFile(filePath: string, encoding?: BufferEncoding): Promise<string>` - Read file content
+- `readFile(filePath: string): Promise<Buffer|null>` - Read file content
 - `deleteFile(filePath: string): Promise<boolean>` - Delete a file
 - `rename(oldPath: string, newPath: string): Promise<boolean>` - Rename/move a file
 - `exists(filePath: string): Promise<boolean>` - Check if file exists
@@ -70,7 +76,7 @@ new LocalFileSystemProvider(options: LocalFileSystemProviderOptions)
 
 ### Search and Listing
 
-- `glob(pattern: string, options?: GlobOptions): Promise<string[]>` - Find files matching glob patterns
+- `glob(pattern: string, options?: GlobOptions): Promise<string>` - Find files matching glob patterns
 - `grep(searchString: string, options?: GrepOptions): Promise<GrepResult[]>` - Search for text in files
 - `getDirectoryTree(dir: string, options?: DirectoryTreeOptions): AsyncGenerator<string>` - Traverse directory tree
 
@@ -121,6 +127,67 @@ interface ExecuteCommandResult {
 }
 ```
 
+### GrepResult
+
+```ts
+interface GrepResult {
+  file: string;
+  line: number;
+  match: string;
+  content: string | null;
+}
+```
+
+### GlobOptions
+
+```ts
+interface GlobOptions {
+  ignoreFilter?: (file: string) => boolean;
+  includeDirectories?: boolean;
+}
+```
+
+### GrepOptions
+
+```ts
+interface GrepOptions {
+  ignoreFilter?: (file: string) => boolean;
+  includeContent?: {
+    linesBefore?: number;
+    linesAfter?: number;
+  };
+}
+```
+
+### WatchOptions
+
+```ts
+interface WatchOptions {
+  ignoreFilter?: (file: string) => boolean;
+  pollInterval?: number;
+  stabilityThreshold?: number;
+}
+```
+
+### DirectoryTreeOptions
+
+```ts
+interface DirectoryTreeOptions {
+  ignoreFilter?: (file: string) => boolean;
+  recursive?: boolean;
+}
+```
+
+### ExecuteCommandOptions
+
+```ts
+interface ExecuteCommandOptions {
+  timeoutSeconds?: number;
+  env?: Record<string, string>;
+  workingDirectory?: string;
+}
+```
+
 ## Usage Examples
 
 ### As a Token Ring Plugin
@@ -163,8 +230,8 @@ const fsProvider = new LocalFileSystemProvider({
 
 // Basic file operations
 await fsProvider.writeFile("test.txt", "Hello, World!");
-const content = await fsProvider.readFile("test.txt", "utf8");
-console.log(content); // "Hello, World!"
+const content = await fsProvider.readFile("test.txt");
+console.log(content); // Buffer containing the file content
 
 // Check if file exists
 const exists = await fsProvider.exists("test.txt");
@@ -232,7 +299,42 @@ try {
 }
 ```
 
-## Plugin Configuration
+### Grep with Context
+
+Search for text with line context to see surrounding code:
+
+```ts
+const results = await fsProvider.grep("error", {
+  ignoreFilter: (file) => file.includes("node_modules"),
+  includeContent: {
+    linesBefore: 2,
+    linesAfter: 2
+  }
+});
+
+console.log(results.map(r => ({
+  file: r.file,
+  line: r.line,
+  match: r.match,
+  context: r.content
+})));
+```
+
+### Glob with Include Directories
+
+Find both files and directories:
+
+```ts
+const items = await fsProvider.glob("**", {
+  ignoreFilter: (file) => file.includes("node_modules"),
+  includeDirectories: true
+});
+
+console.log(items);
+// ["file1.txt", "file2.js", "src/", "src/lib.ts", "docs/", "docs/README.md"]
+```
+
+### Plugin Configuration
 
 When using as a plugin, configure it in your app's filesystem config:
 
@@ -268,7 +370,38 @@ Run the test suite:
 bun run test
 ```
 
+Run tests in watch mode:
+
+```bash
+bun run test:watch
+```
+
+Run tests with coverage:
+
+```bash
+bun run test:coverage
+```
+
+Build the project to check for TypeScript errors:
+
+```bash
+bun run build
+```
+
 The test suite includes integration tests covering file operations, error handling, and edge cases.
+
+## Dependencies
+
+- `@tokenring-ai/app`: Token Ring application framework
+- `@tokenring-ai/chat`: Chat functionality
+- `@tokenring-ai/filesystem`: Abstract filesystem interfaces
+- `@tokenring-ai/agent`: Agent framework
+- `chokidar`: File system watching
+- `execa`: Shell command execution
+- `fs-extra`: File system utilities
+- `glob`: Glob pattern matching
+- `glob-gitignore`: Git ignore pattern support
+- `zod`: Runtime type validation
 
 ## License
 

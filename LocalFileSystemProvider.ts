@@ -108,22 +108,27 @@ export default class LocalFileSystemProvider implements FileSystemProvider {
 
   async stat(filePath: string): Promise<StatLike> {
     const absolutePath = this.relativeOrAbsolutePathToAbsolutePath(filePath);
-    if (!(await fs.pathExists(absolutePath))) {
-      throw new Error(`Path ${filePath} does not exist`);
-    }
 
-    const stats = await fs.stat(absolutePath);
-    return {
-      path: filePath,
-      absolutePath: absolutePath,
-      isFile: stats.isFile(),
-      isDirectory: stats.isDirectory(),
-      isSymbolicLink: stats.isSymbolicLink(),
-      size: stats.size,
-      created: stats.birthtime,
-      modified: stats.mtime,
-      accessed: stats.atime,
-    };
+    try {
+      const stats = await fs.stat(absolutePath);
+      return {
+        exists: true,
+        path: filePath,
+        absolutePath: absolutePath,
+        isFile: stats.isFile(),
+        isDirectory: stats.isDirectory(),
+        isSymbolicLink: stats.isSymbolicLink(),
+        size: stats.size,
+        created: stats.birthtime,
+        modified: stats.mtime,
+        accessed: stats.atime,
+      };
+    } catch (error) {
+      return {
+        exists: false,
+        path: filePath,
+      }
+    }
   }
 
   async createDirectory(dirPath: string, options: { recursive?: boolean } = {}): Promise<boolean> {
